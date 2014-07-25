@@ -8,5 +8,5 @@ Bazuje on na XML.
 Lista komend
 ===============
 
-/warps - lista warpów \n
+/warps - lista warpów
 /warp ( nazwa warpa ) - teleportacja do danego warpa
