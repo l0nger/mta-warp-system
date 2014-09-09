@@ -1,6 +1,4 @@
 
-warpy = {}
-
 
 
 
@@ -18,12 +16,15 @@ local z = tonumber(xmlNodeGetAttribute(node,"z"))
 local d = tonumber(xmlNodeGetAttribute(node,"dimension"))
 local i = tonumber(xmlNodeGetAttribute(node,"interior"))
 
-table.insert(warpy, name)
-warpy[2] = x
-warpy[3] = y
-warpy[4] = z
-warpy[5] = d
-warpy[6] = i
+local warp = createElement("warp")
+setElementData(warp, "name", name)
+setElementData(warp, "x", x)
+setElementData(warp, "y", y)
+setElementData(warp, "z", z)
+setElementData(warp, "d", d)
+setElementData(warp, "i", i)
+
+
 end
 xmlUnloadFile(xml)
 end)
@@ -31,8 +32,9 @@ end)
 
 addCommandHandler("warps",
 function ( )
-for k,v in ipairs (warpy) do
-outputChatBox("Warpy: "..v[1].."", source) -- jesli warpow bedzie za duzo nie wyswietli wiadomosci, bo bedzie za dluga, niestety nie wiem zbytnio jak to naprawic
+  outputChatBox("Warpy:", source)
+for k,v in ipairs (getElementsByType("warp")) do
+outputChatBox(getElementData(v,"name"), source) 
 end
 end)
 
@@ -45,13 +47,13 @@ if not warp then
 outputChatBox("Poprawna forma: /warp nazwawarpu  Lista warpów znajduje się pod komendą /warps", plr)
 return end
 
-for k,v in ipairs(warpy) do
+for k,v in ipairs(getElementsByType("warp")) do
 if v ~= warp then return end
 
-outputChatBox("Teleportowanie do "..v[2].."", plr)
-setElementDimension(plr, v[5])
-setElementInterior(plr, v[6])
-setElementPosition(plr, v[2], v[3], v[4])
+outputChatBox("Teleportowanie do "..getElementData(v, "name").."", plr)
+setElementDimension(plr, getElementData(v, "d"))
+setElementInterior(plr,  getElementData(v, "i"))
+setElementPosition(plr, getElementData(v, "x"), getElementData(v, "y"), getElementData(v, "z")
 end
 end)
 
