@@ -48,12 +48,16 @@ outputChatBox("Poprawna forma: /warp nazwawarpu  Lista warpów znajduje się pod
 return end
 
 for k,v in ipairs(getElementsByType("warp")) do
-if v ~= warp then return end
+if warp == getElementData(v, "name") then
+
 
 outputChatBox("Teleportowanie do "..getElementData(v, "name").."", plr)
 setElementDimension(plr, getElementData(v, "d"))
 setElementInterior(plr,  getElementData(v, "i"))
-setElementPosition(plr, getElementData(v, "x"), getElementData(v, "y"), getElementData(v, "z")
+setElementPosition(plr, getElementData(v, "x"), getElementData(v, "y"), getElementData(v, "z"))
+return
+end
 end
 end)
+
 
