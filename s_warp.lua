@@ -69,7 +69,7 @@ addCommandHandler("warp", function(plr, cmd, warpName)
 			fadeCamera(plr, true)
 		end, 2500, 1, plr, curWarp)
 	else
-		outputChatBox("Nie znaleziono teleportu. Aby sprawdzic listę wszystkich warpów wpisz /lista-warpow")
+		outputChatBox("Nie znaleziono teleportu. Aby sprawdzic listę wszystkich warpów wpisz /lista-warpow", plr)
 	end
 end)
 
