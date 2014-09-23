@@ -1,63 +1,123 @@
 
+local warps=nil
 
+-- functions
+local function loadTheWarps()
+	warps={}
+	local xml=xmlLoadFile("warpy.xml")
+	if not xml then return end -- zabezpieczenie przed "brakiem pliku"/nieznalezieniem pliku
+	local xmlNode=xmlNodeGetChildren(xml)
 
-
-addEventHandler("onResourceStart", getResourceRootElement(getThisResource()),
-function (  )
-
-local xml = xmlLoadFile("warpy.xml") -- ladujemy warpy z pliku xml
-local xmlNode = xmlNodeGetChildren(xml)
-
-for i, node in ipairs(xmlNode) do
-local name = xmlNodeGetAttribute(node,"name")
-local x = tonumber(xmlNodeGetAttribute(node,"x"))
-local y = tonumber(xmlNodeGetAttribute(node,"y"))
-local z = tonumber(xmlNodeGetAttribute(node,"z"))
-local d = tonumber(xmlNodeGetAttribute(node,"dimension"))
-local i = tonumber(xmlNodeGetAttribute(node,"interior"))
-
-local warp = createElement("warp")
-setElementData(warp, "name", name)
-setElementData(warp, "x", x)
-setElementData(warp, "y", y)
-setElementData(warp, "z", z)
-setElementData(warp, "d", d)
-setElementData(warp, "i", i)
-
-
+	for i, node in pairs(xmlNode) do
+		warps[i]={
+			name=tostring(xmlNodeGetAttribute(node, "name")),
+			x=xmlNodeGetAttribute(node, "x"),
+			y=xmlNodeGetAttribute(node, "y"),
+			z=xmlNodeGetAttribute(node, "z"),
+			dim=xmlNodeGetAttribute(node, "dim"),
+			int=xmlNodeGetAttribute(node, "int"),
+		}
+	end
+	outputDebugString("[WARPS]: Loaded " .. #warps .. " warps.")
+	xmlUnloadFile(xml)
 end
-xmlUnloadFile(xml)
+
+-- events
+addEventHandler("onResourceStart", resourceRoot, loadTheWarps)
+addEventHandler("onResourceStop", resourceRoot, function()
+	warps=nil
 end)
 
+-- commands
+addCommandHandler("lista-warpow", function(plr, cmd)
+	if not warps then 
+		outputChatBox("Wystapil blad, prosimy sprobowac pozniej.", plr)
+		return
+	end
 
-addCommandHandler("warps",
-function ( )
-  outputChatBox("Warpy:", source)
-for k,v in ipairs (getElementsByType("warp")) do
-outputChatBox(getElementData(v,"name"), source) 
-end
+	local tmpWarps={}
+	for i,v in pairs(warps) do
+		tmpWarps[i]=v.name
+	end
+	tmpWarps=table.concat(tmpWarps, " ")
+	outputChatBox(tmpWarps, plr)
 end)
 
+addCommandHandler("warp", function(plr, cmd, warpName)
+	if not warpName then
+		outputChatBox("Blad! Podany warp nie istnieje. Wpisz /lista-warpow, aby sprawdzic liste wszystkich warpow.", plr)
+		return
+	end
 
+	local foundedWarp=0
+	for i,v in pairs(warps) do
+		if v.name==warpName then
+			foundedWarp=i
+			break
+		end
+	end
 
-addCommandHandler("warp",
-function ( plr, cmd, warp )
+	if foundedWarp~=0 then
+		local curWarp=warps[foundedWarp]
+		outputChatBox(("Teleportowanie do %s."):format(curWarp.name))
+		fadeCamera(plr, false)
 
-if not warp then
-outputChatBox("Poprawna forma: /warp nazwawarpu  Lista warpów znajduje się pod komendą /warps", plr)
-return end
+		setTimer(function(plr, v)
+			setElementPosition(plr, v.x, v.y, v.z)
+			setElementDimension(plr, v.dim)
+			setElementInterior(plr, v.int)
+			fadeCamera(plr, true)
+		end, 2500, 1, plr, curWarp)
+	else
 
-for k,v in ipairs(getElementsByType("warp")) do
-if warp == getElementData(v, "name") then
-
-
-outputChatBox("Teleportowanie do "..getElementData(v, "name").."", plr)
-setElementDimension(plr, getElementData(v, "d"))
-setElementInterior(plr,  getElementData(v, "i"))
-setElementPosition(plr, getElementData(v, "x"), getElementData(v, "y"), getElementData(v, "z"))
-return
-end
-end
+	end
 end)
 
+addCommandHandler("reload-warp", function(plr, cmd)
+	--[[
+	Dla korzystajacych z uprawnien ACL i wbudowanego mechanizmu kont.
 
+	local accountName=getAccountName(getPlayerAccount(plr)) or "none"
+	if not isObjectInACLGroup("user." .. accountName, aclGetGroup("Admin")) then
+		-- outputChatBox("Brak uprawnien.")
+		return
+	end
+	]]
+
+	warps=nil
+	loadTheWarps()
+	outputChatBox("Pomyslnie przeladowano warpy (obecnie: ".. #warps .. ")", plr)
+end)
+
+addCommandHandler("add-warp", function(plr, cmd, warpName)
+	--[[
+	Dla korzystajacych z uprawnien ACL i wbudowanego mechanizmu kont.
+
+	local accountName=getAccountName(getPlayerAccount(plr)) or "none"
+	if not isObjectInACLGroup("user." .. accountName, aclGetGroup("Admin")) then
+		-- outputChatBox("Brak uprawnien.")
+		return
+	end
+	]]
+
+	if not warpName then
+		outputChatBox("Blad! Nie wpisano nazwy warpu.", plr)
+		return
+	end
+
+	local x,y,z=getElementPosition(plr)
+	local int,dim=getElementInterior(plr), getElementDimension(plr)
+
+	local xml=xmlLoadFile("warpy.xml")
+	if not xml then return end
+
+	--[[
+		@todo: wpisywanie do pliku
+	]]
+	xmlSaveFile(xml)
+	xmlUnloadFile(xml)
+
+	warps=nil
+	loadTheWarps()
+	outputChatBox("Stworzono warp: " .. warpName .. ".", plr)
+end)
