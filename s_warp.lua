@@ -44,6 +44,11 @@ addCommandHandler("lista-warpow", function(plr, cmd)
 end)
 
 addCommandHandler("warp", function(plr, cmd, warpName)
+	if not warps then 
+		outputChatBox("Wystapil blad, prosimy sprobowac pozniej.", plr)
+		return
+	end
+
 	if not warpName then
 		outputChatBox("Blad! Podany warp nie istnieje. Wpisz /lista-warpow, aby sprawdzic liste wszystkich warpow.", plr)
 		return
