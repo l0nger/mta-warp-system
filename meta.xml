@@ -1,6 +1,5 @@
 <meta>
- <info author="ThePiotrek" type="script" name="System warpow" />
+  <info author="ThePiotrek, edited by l0nger" type="script" name="System warpow" />
  
- <script src="warpy_s.lua" />
- <file src="warpy.xml" />
+  <script src="s_warp.lua" type="server" />
  </meta>
