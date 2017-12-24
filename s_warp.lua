@@ -57,16 +57,16 @@ addCommandHandler("warp", function(plr, cmd, warpName)
 		return
 	end
 
-	local foundedWarp=0
+	local foundWarp=0
 	for i,v in pairs(warps) do
 		if v.name==warpName then
-			foundedWarp=i
+			foundWarp=i
 			break
 		end
 	end
 
-	if foundedWarp~=0 then
-		local curWarp=warps[foundedWarp]
+	if foundWarp~=0 then
+		local curWarp=warps[foundWarp]
 		outputChatBox(("Teleportowanie do %s."):format(curWarp.name))
 		fadeCamera(plr, false)
 
